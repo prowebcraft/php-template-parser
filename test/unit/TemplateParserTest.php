@@ -44,7 +44,78 @@ class TemplateParserTest extends TestCase
                     },
                 ]
             ],
-
+            [
+                'This is {{unknown}} variable',
+                'This is  variable',
+                [],
+            ],
+            [
+                'Thanks for your {{#paid}}paid {{/paid}}order.',
+                'Thanks for your paid order.',
+                [],
+                [
+                    'paid' => true,
+                ]
+            ],
+            [
+                'Thanks for your {{#paid}}paid {{/paid}}order.',
+                'Thanks for your order.',
+                [],
+                [
+                    'paid' => false,
+                ]
+            ],
+            [
+                'We all live in a {{#is_yellow}}yellow{{else}}brown{{/is_yellow}} submarine.',
+                'We all live in a brown submarine.',
+                [
+                    'yellow' => 'yellow',
+                    'brown' => 'brown',
+                ],
+                [
+                    'is_yellow' => false,
+                ]
+            ],
+            [
+                'Hello {{#name}}{{name}}{{else}}Guest{{/name}}!',
+                'Hello Elon!',
+                [
+                    'name' => 'Elon',
+                ],
+            ],
+            [
+                '{{#is_value_true}}True{{else}}False{{/is_value_true}}',
+                'True',
+                [],
+                [
+                    'is_value_true' => true
+                ]
+            ],
+            [
+                '{{#!is_value_true}}True{{else}}False{{/is_value_true}}',
+                'False',
+                [],
+                [
+                    'is_value_true' => true
+                ]
+            ],
+            [
+                '{{#is_value_false}}True{{/is_value_false}}',
+                '',
+                [],
+                [
+                    'is_value_false' => null
+                ]
+            ],
+            [
+                'Nested conditions: {{#false}}false{{else}}{{#true}}{{name}}{{/true}}{{/false}}.',
+                'Nested conditions: John.',
+                [
+                    'false' => false,
+                    'true' => true,
+                    'name' => 'John',
+                ],
+            ],
         ];
     }
 }

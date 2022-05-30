@@ -37,8 +37,7 @@ class Parser
                 }
                 $return = '';
                 if (!empty($condition)) {
-                    /** @var string|callable|null $value */
-                    if (($value = ($conditions[$condition] ?? null)) || ($value = ($variables[$condition] ?? null))) {
+                    if ((($value = ($conditions[$condition] ?? null)) !== null || ($value = ($variables[$condition] ?? null))) !== null) {
                         $result = (bool)(is_callable($value) ? (string)$value($match, $callBackParam) : $value);
                         if (preg_match('/(.*){{else}}(.*)/ms', $conditionBody, $condMatch)) {
                             // got extra condition block (else)
@@ -54,7 +53,7 @@ class Parser
                         }
                     }
                 } elseif (!empty($simpleVar)) {
-                    if ($value = ($variables[$simpleVar] ?? null)) {
+                    if (($value = ($variables[$simpleVar] ?? null)) !== null) {
                         $return = is_callable($value) ? (string)$value($match, $callBackParam) : $value;
                     }
                 }
