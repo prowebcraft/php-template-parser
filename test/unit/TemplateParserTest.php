@@ -36,15 +36,6 @@ class TemplateParserTest extends TestCase
                 ]
             ],
             [
-                'Current date is {{current_date}}',
-                'Current date is 2022-01-01',
-                [
-                    'current_date' => function($a, $b) {
-                        return '2022-01-01';
-                    },
-                ]
-            ],
-            [
                 'This is {{unknown}} variable',
                 'This is  variable',
                 [],
@@ -114,6 +105,65 @@ class TemplateParserTest extends TestCase
                     'false' => false,
                     'true' => true,
                     'name' => 'John',
+                ],
+            ],
+            [
+                'Hello from {{#country=Maldives}}Maldives{{else}}Rest of the World{{/country}}!',
+                'Hello from Maldives!',
+                [
+                    'country' => 'Maldives',
+                ],
+            ],
+            [
+                'Hello from {{#country=Italy}}Italy{{else}}Rest of the World{{/country}}!',
+                'Hello from Rest of the World!',
+                [
+                    'country' => 'Maldives',
+                ],
+            ],
+            [
+                'Current date is {{date}}. Local version of date is {{date|d.m.Y}}',
+                'Current date is 2022-03-30. Local version of date is 30.03.2022',
+                [
+                    'date' => function (string $format = 'Y-m-d') {
+                        return date($format, strtotime('30 march 2022'));
+                    },
+                ],
+            ],
+            [
+                'Nested conditions: {{#firstname}}{{#firstname}}{{firstname}}{{lastname}}{{else}}{{firstname}}{{/firstname}}{{/firstname}}',
+                'Nested conditions: John',
+                [
+                    'firstname' => 'John',
+                ],
+            ],
+            [
+                'Simple negative condition: {{#!firstname}}No firstname{{/firstname}}',
+                'Simple negative condition: No firstname',
+                [],
+            ],
+            [
+                'Negative condition: {{#!firstname}}No firstname{{else}}has firstname - {{firstname}}{{/firstname}}',
+                'Negative condition: has firstname - John',
+                [
+                    'firstname' => 'John',
+                ],
+            ],
+            [
+                'Unsupported return type: {{array}}',
+                'Unsupported return type: ',
+                [
+                    'array' => ['Array'],
+                ],
+            ],
+            [
+                'Dot Access Array: {{car.model}} by {{car.vendor}}',
+                'Dot Access Array: Supra by Toyota',
+                [
+                    'car' => [
+                        'vendor' => 'Toyota',
+                        'model' => 'Supra'
+                    ],
                 ],
             ],
         ];
