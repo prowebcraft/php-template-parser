@@ -21,6 +21,16 @@ use function str_contains;
 class Parser
 {
     /**
+     * Open Variable/Condition Tag
+     */
+    public static string $openTag = '{{';
+
+    /**
+     * Close Variable/Condition Tag
+     */
+    public static string $closeTag = '}}';
+
+    /**
      * Parse template
      *
      * @param string $template
@@ -35,7 +45,9 @@ class Parser
     public static function parse(string $template, array $variables, array $conditions = []): string
     {
         $variables = new Dot($variables);
-        $pattern   = '/{{#(!?)([a-zA-Z_1-9]+)(=[^}}]+)?}}(.*){{(\/\2)}}|{{(.+?(?=}}))}}/msS';
+        $ot = self::$openTag;
+        $ct = self::$closeTag;
+        $pattern   = '/'.$ot.'#(!?)([a-zA-Z_1-9]+)(=[^'.$ct.']+)?'.$ct.'(.*)'.$ot.'(\/\2)'.$ct.'|'.$ot.'(.+?(?='.$ct.'))'.$ct.'/msS';
         while (preg_match($pattern, $template)) {
             $template = (string) preg_replace_callback($pattern, static function ($match) use ($variables, $conditions) {
                 $simpleVar        = $match[6] ?? null;
@@ -43,7 +55,7 @@ class Parser
                 $conditionBody    = $match[4] ?? '';
                 $conditionExtra   = $match[3] ?? null;
                 $negative         = (bool) $match[1];
-                $conditionEnclose = sprintf('{{/%s}}', $condition);
+                $conditionEnclose = sprintf('%s/%s%s', self::$openTag, $condition, self::$closeTag);
                 $callBackParams   = [];
                 if ($simpleVar && str_contains($simpleVar, '|')) {
                     [$simpleVar, $callBackParam] = explode('|', $simpleVar);
@@ -72,7 +84,7 @@ class Parser
                             $result = (bool) ($value);
                         }
 
-                        if (preg_match('/(.*){{else}}(.*)/ms', $conditionBody, $condMatch)) {
+                        if (preg_match('/(.*)'.self::$openTag.'else'.self::$closeTag.'(.*)/ms', $conditionBody, $condMatch)) {
                             // got extra condition block (else)
                             if ($negative) {
                                 $return = $result ? $condMatch[2] : $condMatch[1];
